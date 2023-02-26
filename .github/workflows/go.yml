@@ -6,6 +6,8 @@ name: Go
 on:
   push:
     branches: [ "main","testing" ]
+    tags:
+      - "v*.*.*"
   pull_request:
     branches: [ "main" ]
 
@@ -21,16 +23,11 @@ jobs:
       with:
         go-version: 1.19
 
-#    - name: Test
-#      run: go test --coverpkg=./checker/... ./checker/... -v
+    - name: Test
+      run: go test --coverpkg=./checker/... ./checker/... -v
 
     - name: Create artifacts folder
       run: mkdir /tmp/artifacts
-
-    - name: Build
-      run: |
-        go build -v -o /tmp/artifacts/gocert-linux main.go
-        GOOS=windows GOARCH=amd64 go build -o /tmp/artifacts/gocert-win.exe main.go
 
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v3.1.2
@@ -39,4 +36,15 @@ jobs:
         name: gocert
         # A file, directory or wildcard pattern that describes what to upload
         path: /tmp/artifacts
+    - name: Build
+      run: |
+        go build -v -o /tmp/artifacts/gocert.linux-amd64 main.go
+        GOOS=windows GOARCH=amd64 go build -o /tmp/artifacts/gocert.windows-amd64.exe main.go
         
+    - name: Release
+      uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/'
+      with:
+        files: |
+          /tmp/artifacts/gocert.linux-amd64
+          /tmp/artifacts/gocert.windows-amd64.exe
