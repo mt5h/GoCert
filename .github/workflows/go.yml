@@ -1,0 +1,42 @@
+# This workflow will build a golang project
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go
+
+name: Go
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Go
+      uses: actions/setup-go@v3
+      with:
+        go-version: 1.20
+
+    - name: Test
+      run: go test --coverpkg=./checker/... ./checker/... -v
+
+    - name: Create artifacts folder
+      run: mkdir /tmp/artifacts
+
+    - name: Build
+      run: |
+        go build -v -o /tmp/artifacts/gocert-linux main.go
+        GOOS=windows GOARCH=amd64 go build -o /tmp/artifacts/gocert-win.exe main.go
+
+    - name: Upload a Build Artifact
+      uses: actions/upload-artifact@v3.1.2
+      with:
+        # Artifact name
+        name: gocert
+        # A file, directory or wildcard pattern that describes what to upload
+        path: /tmp/artifacts
+        
