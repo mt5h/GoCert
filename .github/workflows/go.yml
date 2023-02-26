@@ -21,8 +21,8 @@ jobs:
       with:
         go-version: 1.19
 
-#    - name: Test
-#      run: go test --coverpkg=./checker/... ./checker/... -v
+    - name: Test
+      run: go test --coverpkg=./checker/... ./checker/... -v
 
     - name: Create artifacts folder
       run: mkdir /tmp/artifacts
